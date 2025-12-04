@@ -1,0 +1,31 @@
+{% extends 'voice/main.html' %}
+{% load static %}
+
+{% block title %}Log In - YouthVoice{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow border-0">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4">Welcome Back</h2>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit" class="btn btn-primary w-100 mt-3">
+                            Log In
+                        </button>
+                    </form>
+
+                    <p class="text-center mt-4 mb-0">
+                        Don't have an account? 
+                        <a href="{% url 'register' %}">Sign up here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
