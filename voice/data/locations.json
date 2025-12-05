@@ -1,0 +1,26 @@
+{
+  "counties": [
+    {
+      "name": "Nairobi",
+      "constituencies": [
+        {
+          "name": "Westlands",
+          "wards": ["Kitisuru", "Parklands", "Kangemi"]
+        },
+        {
+          "name": "Dagoretti North",
+          "wards": ["Kilimani", "Kawangware", "Gatina"]
+        }
+      ]
+    },
+    {
+      "name": "Mombasa",
+      "constituencies": [
+        {
+          "name": "Kisauni",
+          "wards": ["Bamburi", "Mjambere", "Shanzu"]
+        }
+      ]
+    }
+  ]
+}
