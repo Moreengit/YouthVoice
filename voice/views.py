@@ -21,3 +21,10 @@ def register(request):
 
 def profile(request):
     return render(request, 'voice/registration/profile.html')
+
+
+def home(request):
+    if request.user.is_authenticated:
+        return render(request, 'voice/home.html')
+    else:
+        return render(request, 'voice/landing.html')

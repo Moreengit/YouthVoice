@@ -25,7 +25,7 @@ class RegisterForm(UserCreationForm):
         model = User
         fields = ["username", "email", "password1", "password2"]
     
-    # This removes all the default boring help texts
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['username'].help_text = None
@@ -33,7 +33,7 @@ class RegisterForm(UserCreationForm):
         self.fields['password2'].help_text = None
         self.fields['username'].widget.attrs.update({'autofocus': True})
         
-        # Optional: make the fields look even better with Bootstrap classes
+
         for field_name in self.fields:
             self.fields[field_name].widget.attrs.update({
                 'class': 'form-control',
