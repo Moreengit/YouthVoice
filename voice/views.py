@@ -12,6 +12,9 @@ from django.conf import settings
 def home(request):
     return render(request, 'voice/home.html')
 
+   
+
+
 def register(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
