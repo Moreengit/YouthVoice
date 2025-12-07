@@ -2,6 +2,35 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
 from .models import Profile
+from .models import Idea
+
+
+class IdeaForm(forms.ModelForm):
+    class Meta:
+        model = Idea
+        fields = ['title', 'description', 'image']
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Give your idea a title...'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 5,
+                'placeholder': 'Explain your idea in detail...'
+            }),
+            'image': forms.FileInput(attrs={
+                'class': 'form-control'
+            }),
+        }
+        labels = {
+            'title': 'Idea Title',
+            'description': 'Description',
+            'image': 'Add a photo (optional)',
+        }
+
+
+
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)

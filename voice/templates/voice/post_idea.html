@@ -1,20 +1,47 @@
 {% extends 'voice/main.html' %}
+{% load static %}
+
 {% block title %}Post New Idea - YouthVoice{% endblock %}
 
 {% block content %}
 <div class="container py-5">
   <div class="row justify-content-center">
-    <div class="col-lg-8">
-      <div class="card shadow">
+    <div class="col-lg-8 col-md-10">
+      <div class="card shadow-lg border-0">
         <div class="card-body p-5">
-          <h2 class="text-primary text-center mb-4">Post a New Idea</h2>
-          <div class="text-center py-5">
-            <h4 class="text-muted">Feature coming in the next update</h4>
-            <p class="lead">You’ll soon be able to post ideas with photos and descriptions!</p>
-            <a href="{% url 'home' %}" class="btn btn-primary btn-lg mt-3">
-              ← Back to Feed
-            </a>
-          </div>
+          <h2 class="text-center text-primary mb-4 fw-bold">Share Your Idea</h2>
+          
+          <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+            {% csrf_token %}
+            
+            <div class="mb-4">
+              {{ form.title }}
+              {% if form.title.errors %}
+                <div class="text-danger small mt-1">{{ form.title.errors }}</div>
+              {% endif %}
+            </div>
+
+            <div class="mb-4">
+              {{ form.description }}
+              {% if form.description.errors %}
+                <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+              {% endif %}
+            </div>
+
+            <div class="mb-4">
+              {{ form.image }}
+              <div class="form-text">Make your idea stand out!</div>
+            </div>
+
+            <div class="text-center">
+              <button type="submit" class="btn btn-primary btn-lg px-5 shadow">
+                Post Idea
+              </button>
+              <a href="{% url 'feed' %}" class="btn btn-outline-secondary btn-lg ms-3">
+                Cancel
+              </a>
+            </div>
+          </form>
         </div>
       </div>
     </div>

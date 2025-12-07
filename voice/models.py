@@ -62,3 +62,15 @@ class Idea(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+
+class Vote(models.Model):
+    idea = models.ForeignKey(Idea, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('idea', 'user') 
+
+    def __str__(self):
+        return f"{self.user} voted on {self.idea}"
