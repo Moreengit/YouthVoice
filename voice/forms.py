@@ -8,10 +8,10 @@ class RegisterForm(UserCreationForm):
 
     role = forms.ChoiceField(choices=Profile.ROLE_CHOICES, label="Role")
     county = forms.ChoiceField(choices=Profile.COUNTY_CHOICES, label="County")
+    constituency = forms.ChoiceField(choices=Profile.CONSTITUENCY_CHOICES, label="Constituency")
+    ward = forms.ChoiceField(choices=Profile.WARD_CHOICES, label="Ward")
 
-    # Now dropdowns (initially empty)
-    constituency = forms.ChoiceField(choices=[("", "Select Constituency")], label="Constituency")
-    ward = forms.ChoiceField(choices=[("", "Select Ward")], label="Ward")
+
 
     class Meta:
         model = User

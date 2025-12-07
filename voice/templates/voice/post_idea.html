@@ -1,0 +1,23 @@
+{% extends 'voice/main.html' %}
+{% block title %}Post New Idea - YouthVoice{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow">
+        <div class="card-body p-5">
+          <h2 class="text-primary text-center mb-4">Post a New Idea</h2>
+          <div class="text-center py-5">
+            <h4 class="text-muted">Feature coming in the next update</h4>
+            <p class="lead">You’ll soon be able to post ideas with photos and descriptions!</p>
+            <a href="{% url 'home' %}" class="btn btn-primary btn-lg mt-3">
+              ← Back to Feed
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

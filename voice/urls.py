@@ -5,5 +5,6 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('register/', views.register, name='register'),
     path('profile/', views.profile, name='profile'),
+    path('post-idea/', views.post_idea, name='post_idea'),
     path('api/locations/', views.get_locations, name='get_locations'),
 ]

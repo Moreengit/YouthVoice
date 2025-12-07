@@ -20,11 +20,45 @@ class Profile(models.Model):
         for county in loc_data["counties"]
     ]
 
+    CONSTITUENCY_CHOICES = []
+    for county in loc_data["counties"]:
+        for const in county["constituencies"]:
+            CONSTITUENCY_CHOICES.append((const["name"], const["name"]))
+    
+    
+
+    WARD_CHOICES = []
+    for county in loc_data["counties"]:
+        for const in county["constituencies"]:
+            for ward in const["wards"]:
+                WARD_CHOICES.append((ward, ward))
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     county = models.CharField(max_length=100, choices=COUNTY_CHOICES)
-    constituency = models.CharField(max_length=100)
-    ward = models.CharField(max_length=100)
+    constituency = models.CharField(max_length=100, choices=CONSTITUENCY_CHOICES )
+    ward = models.CharField(max_length=100, choices=WARD_CHOICES)
 
     def __str__(self):
         return f"{self.user.username}'s profile"
+
+
+
+class Idea(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    image = models.ImageField(upload_to='ideas/', blank=True, null=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ideas')
+    county = models.CharField(max_length=100)
+    constituency = models.CharField(max_length=100)
+    ward = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def total_votes(self):
+        return self.vote_set.count()
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        ordering = ['-created_at']

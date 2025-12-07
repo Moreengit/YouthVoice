@@ -8,13 +8,20 @@ from django.http import JsonResponse
 import os
 from django.conf import settings
 
-# Create your views here.
+# Landing page for non-logged-in users, feed for logged-in users
 def home(request):
-    return render(request, 'voice/home.html')
+    if request.user.is_authenticated:
+        return render(request, 'voice/feed.html')  # we'll create this soon
+    else:
+        return render(request, 'voice/landing.html')
 
-   
+from django.contrib.auth.decorators import login_required
 
+@login_required
+def post_idea(request):
+    return render(request, 'voice/post_idea.html')
 
+# Registration
 def register(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -27,7 +34,6 @@ def register(request):
                 constituency=form.cleaned_data['constituency'],
                 ward=form.cleaned_data['ward']
             )
-
             login(request, user)            
             return redirect('profile')
     else:
@@ -35,23 +41,13 @@ def register(request):
     
     return render(request, 'voice/registration/register.html', {'form': form})
 
+# Profile page
 def profile(request):
     return render(request, 'voice/registration/profile.html')
 
-
-def home(request):
-    if request.user.is_authenticated:
-        return render(request, 'voice/home.html')
-    else:
-        return render(request, 'voice/landing.html')
-
-
+# API for locations (for cascading dropdowns)
 def get_locations(request):
-    # Path to the JSON file
-    json_path = os.path.join(settings.BASE_DIR, 'voice', 'data', 'locations.json')
-    
-    # Load the JSON data
+    json_path = os.path.join(settings.BASE_DIR, 'voice', 'data', 'kenya_locations.json')
     with open(json_path, 'r') as file:
         data = json.load(file)
-    
     return JsonResponse(data)
