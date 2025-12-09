@@ -1,11 +1,8 @@
 <button 
-    hx-post="{% url 'vote_idea' idea.id %}"
-    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-    hx-target="#vote-area-{{ idea.id }}"
-    hx-swap="outerHTML"
-    onclick="console.log('Button clicked');"
-    class="btn {% if idea.user_has_voted %}btn-success{% else %}btn-outline-success{% endif %} btn-sm d-flex align-items-center gap-2"
-    id="vote-area-{{ idea.id }}">
-  votes 
-  <span class="badge bg-light text-dark">{{ idea.total_votes }}</span>
+    class="vote-btn btn {% if idea.user_has_voted %}btn-success{% else %}btn-outline-success{% endif %} 
+           btn-sm d-flex align-items-center gap-2"
+    data-idea-id="{{ idea.id }}"
+>
+    vote
+    <span class="badge bg-light text-dark">{{ idea.total_votes }}</span>
 </button>
