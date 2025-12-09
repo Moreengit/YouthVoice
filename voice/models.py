@@ -63,6 +63,17 @@ class Idea(models.Model):
     class Meta:
         ordering = ['-created_at']
 
+    STATUS_CHOICES = [
+        ('open', 'Open'),
+        ('in_progress', 'In Progress'),
+        ('done', 'Done'),
+    ]
+
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='open')
+
+
+    
+
 
 class Vote(models.Model):
     idea = models.ForeignKey(Idea, on_delete=models.CASCADE)

@@ -9,4 +9,6 @@ urlpatterns = [
     path('feed/', views.feed, name='feed'),            
     path('vote/<int:idea_id>/', views.vote_idea, name='vote_idea'),
     path('api/locations/', views.get_locations, name='get_locations'),
+    path('leader-dashboard/', views.leader_dashboard, name='leader_dashboard'),
+    path('update-status/<int:idea_id>/', views.update_status, name='update_status'),
 ]

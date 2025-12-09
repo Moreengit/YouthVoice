@@ -1,0 +1,94 @@
+{% extends 'voice/main.html' %}
+{% load static %}
+
+{% block title %}Leader Dashboard - YouthVoice{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <h1 class="text-center text-primary fw-bold">Welcome to YouthVoice Kenya</h1>
+    <h3 class="text-center lead">Connecting Residents to their Leaders </h3>
+</div>
+
+<div class="container py-5">
+  
+  {% if top_ideas %}
+  <div class="alert alert-primary border-0 rounded-3 shadow-sm mb-5">
+    <div class="d-flex align-items-center">
+      <i class="bi bi-exclamation-triangle-fill fs-3 me-3"></i>
+      <div>
+        <h4 class="mb-1 text-dark">Top 5 Most Voted Ideas in Your Ward</h4>
+        <ol class="mb-0 text-dark-50">
+          {% for idea in top_ideas %}
+            <li class="mb-2">
+              <strong>{{ idea.title }}</strong> 
+              <span class="badge bg-light text-dark ms-2">{{ idea.vote_count }} votes</span>
+            </li>
+          {% endfor %}
+        </ol>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="text-primary fw-bold">My Ward Ideas</h2>
+      <h3 class="text-muted">Manage and track ideas from your constituents</h3>
+    </div>
+    <div class="text-end">
+      <h5 class="text-muted">Ward: <strong>{{ request.user.profile.ward }}</strong></h5>
+    </div>
+  </div>
+
+  <!-- IDEAS GRID -->
+  <div class="row g-4">
+    {% for idea in ideas %}
+      <div class="col-lg-6">
+        <div class="card h-100 shadow-sm border-0 hover-shadow">
+          {% if idea.image %}
+            <img src="{{ idea.image.url }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+          {% endif %}
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title fw-bold text-primary">{{ idea.title }}</h5>
+            <p class="text-muted small">
+              by <strong>{{ idea.author.get_full_name|default:idea.author.username }}</strong><br>
+              <small>{{ idea.created_at|date:"M d, Y" }}</small>
+            </p>
+            <p class="card-text flex-grow-1">{{ idea.description|truncatewords:30 }}</p>
+
+            <div class="mt-auto">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <span class="badge bg-success fs-6">Votes {{ idea.vote_count }}</span>
+                </div>
+                    <form method="post" action="{% url 'update_status' idea.id %}" class="d-inline">
+                        {% csrf_token %}
+                        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="open" {% if idea.status == 'open' %}selected{% endif %}>Open</option>
+                            <option value="in_progress" {% if idea.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                            <option value="done" {% if idea.status == 'done' %}selected{% endif %}>Done</option>
+                        </select>
+                    </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12 text-center py-5">
+        <h4 class="text-muted">No ideas in your ward yet</h4>
+        <p class="lead">Your constituents haven't posted any ideas.</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+  .hover-shadow:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15) !important;
+    transition: all 0.3s ease;
+  }
+</style>
+{% endblock %}
