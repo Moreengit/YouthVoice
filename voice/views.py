@@ -7,15 +7,21 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.http import Http404
 from .forms import RegisterForm, IdeaForm
-from .models import Profile, Idea, Vote
+from .models import Profile, Idea, Vote, Sponsorship
+from .mpesa import initiate_stk_push
 
 
-# Landing page + home
 def home(request):
+    total_sponsors = Sponsorship.objects.filter(status='completed').count()
+    latest_sponsors = Sponsorship.objects.filter(status='completed').order_by('-created_at')[:10]
+    
+    # context = {
+    #     'total_sponsors': total_sponsors,
+    #     'latest_sponsors': latest_sponsors,
+    # }
     return render(request, 'voice/landing.html')
 
 
-# Registration — FIXED
 def register(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -28,31 +34,55 @@ def register(request):
                 constituency=form.cleaned_data['constituency'],
                 ward=form.cleaned_data['ward']
             )
-            login(request, user)  # ← Now works perfectly
+            login(request, user)  
             return redirect('home')
     else:
         form = RegisterForm()
     return render(request, 'voice/registration/register.html', {'form': form})
 
 
-# Login view — you had a function named "login" which conflicted
 def user_login(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(request, username=username, password=password)
+
         if user is not None:
             login(request, user)
-            return redirect('feed')
+
+            # Redirect based on role
+            if hasattr(user, 'profile'):
+                if user.profile.role == 'leader':
+                    return redirect('leader_profile')   # Leader profile page
+                else:
+                    return redirect('profile')         # Resident profile page
+
+            # Fallback
+            return redirect('profile')
+
         else:
             messages.error(request, "Invalid username or password.")
+
     return render(request, 'registration/login.html')
+
 
 
 # Profile page
 @login_required
 def profile(request):
-    return render(request, 'voice/feed.html')  # or your actual profile template
+
+    user_ideas = Idea.objects.filter(author=request.user)
+    return render(request, 'voice/profile.html', {
+        'ideas': user_ideas,
+        'user': request.user 
+    })
+    """
+    Show all ideas posted by the logged-in user.
+    """
+    user_ideas = Idea.objects.filter(author=request.user)
+    return render(request, 'voice/profile.html', {'ideas': user_ideas})
+
+    # return render(request, 'voice/feed.html')  
 
 
 # Post idea
@@ -163,7 +193,7 @@ def leader_dashboard(request):
 
     top_ideas = ideas.order_by('-vote_count')[:5]
 
-    # Now idea.vote_count works directly in template
+    
     context = {
         'ideas': ideas,
         'top_ideas': top_ideas,
@@ -187,3 +217,142 @@ def update_status(request, idea_id):
             idea.save()
 
     return redirect('leader_dashboard')
+
+
+
+def sponsor_request(request):
+    if request.method == 'POST':
+        amount = request.POST.get('amount')
+        phone = request.POST.get('phone').replace(' ', '').replace(' ', '')
+        name = request.POST.get('name', 'Anonymous')
+        message = request.POST.get('message', '')
+
+        if phone.startswith('0'):
+            phone = '254' + phone[1:]
+        elif not phone.startswith('+254'):
+            phone = '+254' + phone
+
+
+        try:
+            response = initiate_stk_push(phone, int(amount))
+            if response.get('ResponseCode') == '0':
+                Sponsorship.objects.create(
+                    name=name,
+                    phone_number=phone,
+                    amount=amount,
+                    message=message,
+                    mpesa_receipt_number=response.get('CheckoutRequestID'),
+                    status='pending'
+                )
+                messages.success(request, "Check your phone — enter MPESA PIN to complete!")
+            else:
+                messages.error(request, "MPESA error. Try again.")
+        except Exception as e:
+            messages.error(request, "Payment failed. Try again.")
+
+    return redirect('home')
+
+
+
+
+
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
+import json
+from .models import Sponsorship
+
+@csrf_exempt
+def mpesa_confirmation(request):
+    """
+    Receives M-PESA STK push confirmation from Daraja sandbox.
+    Updates the corresponding Sponsorship record.
+    """
+    if request.method == 'POST':
+        try:
+            # Decode JSON body
+            data = request.body.decode('utf-8')
+            result = json.loads(data)
+
+            # Safely get stkCallback
+            stk_callback = result.get('Body', {}).get('stkCallback', {})
+            result_code = stk_callback.get('ResultCode')
+
+            if result_code == 0:
+                # Payment successful
+                metadata = stk_callback.get('CallbackMetadata', {}).get('Item', [])
+
+                # Extract receipt number and amount
+                receipt_number = next(
+                    (x['Value'] for x in metadata if x['Name'] == 'MpesaReceiptNumber'),
+                    None
+                )
+                amount = next(
+                    (x['Value'] for x in metadata if x['Name'] == 'Amount'),
+                    None
+                )
+
+                # Update pending sponsorship record
+                try:
+                    sponsor = Sponsorship.objects.get(
+                        mpesa_receipt_number=stk_callback.get('CheckoutRequestID'),
+                        status='pending'
+                    )
+                    sponsor.mpesa_receipt_number = receipt_number
+                    sponsor.amount = amount
+                    sponsor.status = 'completed'
+                    sponsor.save()
+                except Sponsorship.DoesNotExist:
+                    # Record not found, maybe log this
+                    pass
+
+            else:
+                # Payment failed, optionally log failure
+                checkout_id = stk_callback.get('CheckoutRequestID')
+                # You can update the sponsorship to 'failed' if needed
+                try:
+                    sponsor = Sponsorship.objects.get(
+                        mpesa_receipt_number=checkout_id,
+                        status='pending'
+                    )
+                    sponsor.status = 'failed'
+                    sponsor.save()
+                except Sponsorship.DoesNotExist:
+                    pass
+
+        except Exception as e:
+            # Log exception if needed
+            print("MPESA confirmation error:", str(e))
+
+    return HttpResponse("OK")
+
+
+def mpesa_validation(request):
+    return HttpResponse("OK")
+
+
+
+
+@login_required
+def delete_idea(request, idea_id):
+    """
+    Delete an idea if the logged-in user is the author.
+    """
+    idea = get_object_or_404(Idea, id=idea_id, author=request.user)
+
+    if request.method == 'POST':
+        idea.delete()
+        return redirect('profile')  # Redirect back to profile
+
+    return redirect('profile')
+
+
+
+@login_required
+def leader_profile(request):
+    """
+    View for leader's profile page.
+    Shows only username and email, no ideas or post options.
+    """
+    return render(request, 'voice/leader_profile.html')
+
+

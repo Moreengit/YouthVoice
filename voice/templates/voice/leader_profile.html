@@ -18,7 +18,7 @@
                     </div>
 
                     <div class="mt-5">
-                        <a href="{% url 'home' %}" class="btn btn-outline-primary">Back to Home</a>
+                        <a href="{% url 'leader_dashboard' %}" class="btn btn-outline-primary">Back to Dashboard</a>
                     
                           <form action="{% url 'logout' %}" method="POST" style="display:inline;">
         {% csrf_token %}

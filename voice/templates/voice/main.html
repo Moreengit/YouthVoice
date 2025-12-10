@@ -19,16 +19,25 @@
     <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@1.11.1"></script>
 
-
+    {% comment %} <style>
+      /#home {
+         background-image: url("assets/images/flowers.jpg");
+         background-repeat: no-repeat;
+         background-size: cover;
+         background-position: center;
+      }
+    </style> {% endcomment %}
     {% block head %}{% endblock %}
   </head>
   <body>
+   
     {% csrf_token %}
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-primary">
       <div class="container py-3">
         <a class="navbar-brand" href="#">
     <img src="{% static 'voice/images/favicon.svg' %}" alt="YouthVoice Logo" width="40">
+    <span class="ms-2 fw-bold fs-2 text-light">YouthVoice</span>
 </a>
         <div>
           <button
@@ -59,14 +68,40 @@
                 <a class="nav-link fs-5 text-light" href="/#sponsorship">Sponsorship</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link fs-5 text-light" href="/#contacts">Contacts</a>
+                <a class="nav-link fs-5 text-light" href="/#contacts">Contact us</a>
               </li>
                 {% if user.is_authenticated %}
-              <li class="nav-item"><a class="nav-link fs-5 text-light" href="{% url 'profile' %}">Profile</a></li>
+                     {% if user.is_authenticated %}
+                        {% if user.profile.role == 'leader' %}
+                             <li class="nav-item">
+                                <a class="nav-link fs-5 text-light" href="{% url 'leader_dashboard' %}">Dashboard</a>
+                             </li>
+                        {% else %}
+                             <li class="nav-item">
+                                <a class="nav-link fs-5 text-light" href="{% url 'feed' %}">Feed</a>
+                             </li>
+                        {% endif %}
+                     {% endif %}
+
               <li class="nav-item">
-                <form action="{% url 'logout' %}" method="post" class="d-inline">
-                  {% csrf_token %}
-                  <button class="btn btn-link nav-link fs-5 text-light" type="submit">Logout</button>
+                       {% if user.is_authenticated %}
+                           {% if user.profile.role == 'leader' %}
+                               <a class="nav-link fs-5 text-light" href="{% url 'leader_profile' %}">Profile</a>
+                             {% else %}
+                               <a class="nav-link fs-5 text-light" href="{% url 'profile' %}">Profile</a>
+                           {% endif %}
+                       {% endif %}
+                </li>
+
+              <li class="nav-item">
+                <form method="POST" action="{% url 'logout' %}" 
+                      onsubmit="return confirm('Are you sure you want to log out?');"
+                     style="display: inline;">
+                      {% csrf_token %}
+                       <button type="submit" class="nav-link fs-5 text-light" 
+                          style="color: inherit; text-decoration: none;">
+                              Logout
+                      </button>
                 </form>
               </li>
             {% else %}

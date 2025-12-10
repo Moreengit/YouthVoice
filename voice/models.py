@@ -85,3 +85,38 @@ class Vote(models.Model):
 
     def __str__(self):
         return f"{self.user} voted on {self.idea}"
+
+
+
+
+
+class Sponsorship(models.Model):
+    TIER_CHOICES = [
+        ('bronze', 'Bronze - KES 100'),
+        ('silver', 'Silver - KES 500'),
+        ('gold', 'Gold - KES 1000+'),
+    ]
+
+    name = models.CharField(max_length=100, blank=True)
+    phone_number = models.CharField(max_length=15)
+    amount = models.PositiveIntegerField()
+    tier = models.CharField(max_length=10, choices=TIER_CHOICES)
+    message = models.TextField(blank=True)
+    mpesa_receipt_number = models.CharField(max_length=50, blank=True, null=True)
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ('pending', 'Pending'),
+            ('completed', 'Completed'),
+            ('failed', 'Failed'),
+        ],
+        default='pending'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name or 'Anonymous'} - KES {self.amount}"
+
+    class Meta:
+        ordering = ['-created_at']
+

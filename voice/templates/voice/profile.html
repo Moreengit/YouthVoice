@@ -1,0 +1,44 @@
+{% extends 'voice/main.html' %}
+{% block title %}Profile - YouthVoice{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="text-primary fw-bold text-center">My Profile</h2>
+
+    <!-- USER DETAILS -->
+    <div class="card shadow-sm p-4 my-4">
+        <h4 class="fw-bold text-primary">Account Details</h4>
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+    </div>
+
+    <!-- USER IDEAS -->
+    <h3 class="text-primary text-center fw-bold mt-5">My Ideas</h3>
+    <div class="row g-4 mt-3">
+        {% for idea in ideas %}
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100 border-0">
+                {% if idea.image %}
+                <img src="{{ idea.image.url }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="fw-bold">{{ idea.title }}</h5>
+                    <p>{{ idea.description|truncatewords:20 }}</p>
+
+                    <form method="POST" action="{% url 'delete_idea' idea.id %}" 
+                        onsubmit="return confirm('Are you sure you want to delete this idea?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-muted text-center py-5">You haven't posted any ideas yet.</p>
+        <p class="text-muted text-center"> Click <a href="{% url 'post_idea' %}" class="text-center"> here </a> to post your idea</p>
+          
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
