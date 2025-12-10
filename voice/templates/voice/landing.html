@@ -11,7 +11,7 @@
           Connecting Residents to their Leaders
         </p>
         <div class="fs-5 text-primary">SDG 16: Peace, Justice and Strong Institutions</div>
-        <p class="lead">YouthVoice is a web platform that connects Kenyan youth directly with their local leaders at the ward level. Users register as Resident or Leader, select their exact location, post community ideas with photos and vote in real-time. Leaders see only ideas from their ward, can mark them as In-Progress/Done.</p>
+        <p class="lead">YouthVoice is a web platform that connects Kenyan youth directly with their local leaders at the ward level. Users register as Resident or Leader, select their exact location, post community ideas with photos and vote in real-time. Leaders can also see ideas from their ward, can mark them as Open/In-Progress/Done.</p>
         <div class="mt-4">
           <a href="{% url 'register' %}" class="btn btn-primary btn-lg me-2">Sign up</a>
           <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-lg">Log in</a>
@@ -246,9 +246,80 @@
     </div>
   </div>
 
-  <div class="text-center mt-5">
-    <a href="#contact" class="btn btn-primary btn-lg">Become a Sponsor</a>
+  <!-- SPONSOR BUTTON — OPENS MODAL -->
+<div class="text-center py-5 bg-primary rounded-5 text-white">
+  <h2 class="mb-4">Be a Champion for Kenyan Youth</h2>
+  <p class="lead mb-4">Your KES 500 helps 1,000 young people be heard</p>
+  
+  <button type="button" class="btn btn-light btn-lg px-5 fw-bold" data-bs-toggle="modal" data-bs-target="#sponsorModal">
+    Become a Sponsor via MPESA
+  </button>
+  
+  <p class="mt-4">
+    <strong>Join {{ total_sponsors|default:"284" }} Kenyans</strong> who’ve sponsored this month
+  </p>
+</div>.
+
+
+
+<!-- SPONSOR MODAL -->
+<div class="modal fade" id="sponsorModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title fw-bold">Sponsor YouthVoice</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      
+      <div class="modal-body p-4">
+        <form method="post" action="{% url 'sponsor_request' %}">
+          {% csrf_token %}
+          
+          <p class="fw-bold mb-3">Choose amount:</p>
+          <div class="row g-3 mb-4">
+            <div class="col-6">
+              <input type="radio" name="amount" value="100" id="a100" class="btn-check" required>
+              <label for="a100" class="btn btn-outline-primary w-100">KES 100</label>
+            </div>
+            <div class="col-6">
+              <input type="radio" name="amount" value="300" id="a300" class="btn-check">
+              <label for="a300" class="btn btn-outline-primary w-100">KES 300</label>
+            </div>
+            <div class="col-6">
+              <input type="radio" name="amount" value="500" id="a500" class="btn-check" checked>
+              <label for="a500" class="btn btn-outline-primary w-100">KES 500</label>
+            </div>
+            <div class="col-6">
+              <input type="radio" name="amount" value="1000" id="a1000" class="btn-check">
+              <label for="a1000" class="btn btn-outline-primary w-100">KES 1000</label>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Phone Number</label>
+            <input type="tel" name="phone" class="form-control" value="+254" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Your Name (optional)</label>
+            <input type="text" name="name" class="form-control" placeholder="John Doe">
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">Message (optional)</label>
+            <textarea name="message" class="form-control" rows="2" placeholder="Proud to support youth!"></textarea>
+          </div>
+
+          <div class="text-center">
+            <button type="submit" class="btn btn-primary btn-lg px-5 fw-bold">
+              Pay with MPESA
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
+</div>
 </section>
 
 <section id="contacts" class="container my-5 py-5">
